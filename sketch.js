@@ -24,12 +24,15 @@
 // }
 
 let circles = []
+let new_circles_this_frame = 0
+let new_circle_creation_attempts_this_frame = 0
+let START_RADIUS = 5
 
 function setup() {
   createCanvas(500, 500);
   background(0, 0, 0)
 
-  circles.push(new Circle(100, 100, 0))
+  circles.push(new Circle(100, 100, START_RADIUS))
 }
 
 function draw() {
@@ -39,19 +42,30 @@ function draw() {
     circle.display()
   }
 
-  newCircle()
+  while (new_circles_this_frame < 5) {
+    newCircle()
+    if (new_circle_creation_attempts_this_frame > 1000) {
+      console.log('Area Filled')
+      noLoop()
+    }
+  }
+
+  new_circles_this_frame = 0
+  new_circle_creation_attempts_this_frame = 0
 }
 
 function newCircle() {
+  new_circle_creation_attempts_this_frame += 1
   let x = Math.random() * windowWidth
   let y = Math.random() * windowHeight
 
   for (let circle of circles) {
     let circleDistance = dist(x, y, circle.x, circle.y)
-    if (circleDistance < circle.radius) {
+    if (circleDistance < circle.radius + START_RADIUS) {
       return
     }
   }
 
-  circles.push(new Circle(x, y, 0))
+  circles.push(new Circle(x, y, START_RADIUS))
+  new_circles_this_frame += 1
 }
