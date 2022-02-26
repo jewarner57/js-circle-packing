@@ -1,47 +1,48 @@
 let circles = []
 let new_circles_this_frame = 0
 let new_circle_creation_attempts_this_frame = 0
-let START_RADIUS = 5
-let CREATE_LIMIT_PER_FRAME = 20
-let MAX_ATTEMPTS_PER_FRAME = 1000
-let spots = []
+let START_RADIUS = 3
+let CREATE_LIMIT_PER_FRAME = 150
+let MAX_ATTEMPTS_PER_FRAME = 10000
+let img
+
+function preload() {
+  img = loadImage('./assets/high-detail.jpg');
+}
 
 function setup() {
-  getImage((width, height) => { createCanvas(width, height); loop() })
-  background(0, 0, 0)
+  const density = displayDensity();
+  pixelDensity(1);
+  img.loadPixels();
+  circles = [];
 
-  noLoop()
+  createCanvas(img.width, img.height);
+  background(img)
 }
 
 function draw() {
-  if (spots.length > 0) {
-    for (circle of circles) {
-      circle.isGrowing ? circle.grow(circles) : null
-      circle.display()
-    }
-
-    while (new_circles_this_frame < CREATE_LIMIT_PER_FRAME) {
-      newCircle()
-      if (new_circle_creation_attempts_this_frame > MAX_ATTEMPTS_PER_FRAME) {
-        console.log('Area Filled')
-        noLoop()
-      }
-    }
-
-    new_circles_this_frame = 0
-    new_circle_creation_attempts_this_frame = 0
+  for (let circle of circles) {
+    circle.isGrowing ? circle.grow(circles) : null
+    circle.display()
   }
+
+  while (new_circles_this_frame < CREATE_LIMIT_PER_FRAME) {
+    newCircle()
+    if (new_circle_creation_attempts_this_frame > MAX_ATTEMPTS_PER_FRAME) {
+      console.log('Area Filled')
+      noLoop()
+    }
+  }
+
+  new_circles_this_frame = 0
+  new_circle_creation_attempts_this_frame = 0
 }
 
 function newCircle() {
   new_circle_creation_attempts_this_frame += 1
 
-  const randomSpot = Math.floor(Math.random() * spots.length)
-
-  let x = spots[randomSpot][0]
-  let y = spots[randomSpot][1]
-  let spot_color = spots[randomSpot][2]
-  spots.splice(randomSpot, 1)
+  let x = random(0, img.width)
+  let y = random(0, img.height)
 
   for (let circle of circles) {
     let circleDistance = dist(x, y, circle.x, circle.y)
@@ -50,26 +51,13 @@ function newCircle() {
     }
   }
 
-  circles.push(new Circle(x, y, START_RADIUS, spot_color))
+  const index = (int(x) + int(y) * img.width) * 4;
+  const r = img.pixels[index];
+  const g = img.pixels[index + 1];
+  const b = img.pixels[index + 2];
+  const c = color(r, g, b);
+
+
+  circles.push(new Circle(x, y, START_RADIUS, c))
   new_circles_this_frame += 1
-}
-
-function getImage(callback) {
-  const img = loadImage('./test.jpg', (img) => {
-
-    img.loadPixels()
-    console.log(img)
-
-    for (let x = 0; x < img.width; x++) {
-      for (let y = 0; y < img.height; y++) {
-        let index = (x + y * width) * 4;
-        const pixel_color = color(img.pixels[index], img.pixels[index + 1], img.pixels[index + 2])
-        if ((img.pixels[index] + img.pixels[index + 1] + img.pixels[index + 2]) / 3 < 250) {
-          spots.push([x, y, pixel_color])
-        }
-      }
-    }
-
-    callback(img.width, img.height)
-  })
 }

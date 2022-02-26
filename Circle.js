@@ -9,6 +9,7 @@ class Circle {
         this.canvasWidth = windowWidth
         this.isGrowing = true
         this.color = color_ || color(`hsl(${parseInt(Math.random() * 360)}, 100%, 50%)`)
+        console.log(color_)
     }
 
     display() {
