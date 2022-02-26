@@ -1,7 +1,9 @@
 let circles = []
 let new_circles_this_frame = 0
 let new_circle_creation_attempts_this_frame = 0
+// Set the starting radius for each circle
 let START_RADIUS = 3
+// Higher means more smaller circles, lower means fewer larger circles
 let CREATE_LIMIT_PER_FRAME = 150
 let MAX_ATTEMPTS_PER_FRAME = 10000
 let img
@@ -17,6 +19,7 @@ function setup() {
   circles = [];
 
   createCanvas(img.width, img.height);
+  // comment this out to remove the background images and just show the circles
   background(img)
 }
 
