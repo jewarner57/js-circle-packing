@@ -1,63 +1,47 @@
-// function setup() {
-//   createCanvas(500, 500);
-//   background(25, 105, 255)
-
-//   for (i = 0; i < 15; i++) {
-//     tree(random(0, 400), 401, random(40, 150), random(40, 150));
-//   }
-
-// }
-
-// function tree(x, y, trunkHeight, leafSize) {
-//   noStroke()
-//   fill(random(140, 165), random(40, 85), random(10, 40))
-//   rect(x, y, leafSize / 4, -trunkHeight)
-
-//   var leafColorG = random(100, 255)
-//   var leafColorB = random(0, 30)
-
-//   for (var i = 0; i < 10; i++) {
-//     fill(0, leafColorG, leafColorB);
-//     ellipse(x + leafSize / 8 + random(-i, i), y - trunkHeight - leafSize / 2 + random(-i, i), leafSize + random(-i, i), leafSize + random(-i, i))
-//   }
-
-// }
-
 let circles = []
 let new_circles_this_frame = 0
 let new_circle_creation_attempts_this_frame = 0
 let START_RADIUS = 5
+let CREATE_LIMIT_PER_FRAME = 20
+let MAX_ATTEMPTS_PER_FRAME = 1000
+let spots = []
 
 function setup() {
-  createCanvas(500, 500);
+  getImage((width, height) => { createCanvas(width, height); loop() })
   background(0, 0, 0)
 
-  circles.push(new Circle(100, 100, START_RADIUS))
+  noLoop()
 }
 
 function draw() {
-
-  for (circle of circles) {
-    circle.isGrowing ? circle.grow(circles) : null
-    circle.display()
-  }
-
-  while (new_circles_this_frame < 5) {
-    newCircle()
-    if (new_circle_creation_attempts_this_frame > 1000) {
-      console.log('Area Filled')
-      noLoop()
+  if (spots.length > 0) {
+    for (circle of circles) {
+      circle.isGrowing ? circle.grow(circles) : null
+      circle.display()
     }
-  }
 
-  new_circles_this_frame = 0
-  new_circle_creation_attempts_this_frame = 0
+    while (new_circles_this_frame < CREATE_LIMIT_PER_FRAME) {
+      newCircle()
+      if (new_circle_creation_attempts_this_frame > MAX_ATTEMPTS_PER_FRAME) {
+        console.log('Area Filled')
+        noLoop()
+      }
+    }
+
+    new_circles_this_frame = 0
+    new_circle_creation_attempts_this_frame = 0
+  }
 }
 
 function newCircle() {
   new_circle_creation_attempts_this_frame += 1
-  let x = Math.random() * windowWidth
-  let y = Math.random() * windowHeight
+
+  const randomSpot = Math.floor(Math.random() * spots.length)
+
+  let x = spots[randomSpot][0]
+  let y = spots[randomSpot][1]
+  let spot_color = spots[randomSpot][2]
+  spots.splice(randomSpot, 1)
 
   for (let circle of circles) {
     let circleDistance = dist(x, y, circle.x, circle.y)
@@ -66,6 +50,26 @@ function newCircle() {
     }
   }
 
-  circles.push(new Circle(x, y, START_RADIUS))
+  circles.push(new Circle(x, y, START_RADIUS, spot_color))
   new_circles_this_frame += 1
+}
+
+function getImage(callback) {
+  const img = loadImage('./test.jpg', (img) => {
+
+    img.loadPixels()
+    console.log(img)
+
+    for (let x = 0; x < img.width; x++) {
+      for (let y = 0; y < img.height; y++) {
+        let index = (x + y * width) * 4;
+        const pixel_color = color(img.pixels[index], img.pixels[index + 1], img.pixels[index + 2])
+        if ((img.pixels[index] + img.pixels[index + 1] + img.pixels[index + 2]) / 3 < 250) {
+          spots.push([x, y, pixel_color])
+        }
+      }
+    }
+
+    callback(img.width, img.height)
+  })
 }

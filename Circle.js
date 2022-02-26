@@ -1,15 +1,14 @@
 const CIRCLE_DISTANCE = 2
 
 class Circle {
-    constructor(x, y, radius) {
+    constructor(x, y, radius, color_ = null) {
         this.x = x
         this.y = y
         this.radius = radius
         this.canvasHeight = windowHeight
         this.canvasWidth = windowWidth
         this.isGrowing = true
-
-        this.color = color(`hsl(${parseInt(Math.random() * 360)}, 100%, 50%)`)
+        this.color = color_ || color(`hsl(${parseInt(Math.random() * 360)}, 100%, 50%)`)
     }
 
     display() {
