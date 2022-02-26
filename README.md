@@ -2,7 +2,6 @@
 
 ## What is this?
 * This app packs circles of varying sizes into a limited space to create unique expressions of shapes and color.
-* It is best presented overlayed on top of an image as seen below.
 
 ## Screenshots
 ![bob-ross painting circle packed](./assets/screenshot-1.png)
